@@ -1,5 +1,7 @@
 const express = require('express');
 const app = express();
+
+require('dotenv').config()
 app.use(express.json()); // Parse JSON bodies
 
 let todos = [
@@ -14,9 +16,35 @@ app.get('/todos', (req, res) => {
 
 // POST New – Create
 app.post('/todos', (req, res) => {
-  const newTodo = { id: todos.length + 1, ...req.body }; // Auto-ID
+  
+  if (!req.body.task) return res.status(400). json({error: "Task field required"});
+  
+  const newTodo = { id: todos.length + 1, ...req.body}; // Auto-ID
   todos.push(newTodo);
   res.status(201).json(newTodo); // Echo back
+});
+
+//GET Uncompleted todos
+app.get('/todos/active', (req, res) => {
+  const todoInProgress = todos.filter((t) => !t.completed);
+  console.log(todoInProgress)
+  res.status(200).json(todoInProgress); // Custom Read!
+});
+
+// GET Completed todos
+app.get('/todos/completed', (req, res) => {
+  const completed = todos.filter((t) => t.completed);
+  console.log(completed)
+  res.json(completed); // Custom Read!
+});
+
+// GET Single task
+app.get('/todos/:id', (req, res) => {
+  const singleTodo = [];
+  const todo = todos.find((t) => t.id === parseInt(req.params.id));
+
+  singleTodo.push(todo)
+  res.status(200).json(singleTodo); // Send array as JSON
 });
 
 // PATCH Update – Partial
@@ -37,14 +65,9 @@ app.delete('/todos/:id', (req, res) => {
   res.status(204).send(); // Silent success
 });
 
-app.get('/todos/completed', (req, res) => {
-  const completed = todos.filter((t) => t.completed);
-  res.json(completed); // Custom Read!
-});
-
 app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error!' });
 });
 
-const PORT = 3002;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server on port ${PORT}`));
