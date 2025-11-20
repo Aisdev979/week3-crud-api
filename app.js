@@ -40,11 +40,9 @@ app.get('/todos/completed', (req, res) => {
 
 // GET Single task
 app.get('/todos/:id', (req, res) => {
-  const singleTodo = [];
   const todo = todos.find((t) => t.id === parseInt(req.params.id));
 
-  singleTodo.push(todo)
-  res.status(200).json(singleTodo); // Send array as JSON
+  res.status(200).json(todo); // Send array as JSON
 });
 
 // PATCH Update – Partial
